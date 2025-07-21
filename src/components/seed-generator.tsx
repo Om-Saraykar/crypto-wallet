@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { generateMnemonic } from "bip39";
 
 // A simple SVG icon for the copy button
@@ -25,7 +24,7 @@ interface WalletGeneratorProps {
   setIsCopied: (isCopied: boolean) => void;
 }
 
-export default function WalletGenerator({ mnemonic, setMnemonic, isCopied, setIsCopied }: WalletGeneratorProps) {
+export default function SeedGenerator({ mnemonic, setMnemonic, isCopied, setIsCopied }: WalletGeneratorProps) {
 
   // Function to generate a new mnemonic
   const handleGenerateMnemonic = () => {
@@ -72,13 +71,16 @@ export default function WalletGenerator({ mnemonic, setMnemonic, isCopied, setIs
         </div>
 
         {/* Generate Button */}
-        <button
-          type="button"
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform focus:outline-none focus:ring-4 focus:ring-purple-500/50 cursor-pointer"
-          onClick={handleGenerateMnemonic}
-        >
-          {mnemonic ? "Generate New Mnemonic" : "Generate Mnemonic"}
-        </button>
+        {!mnemonic && (
+          <button
+            type="button"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform focus:outline-none focus:ring-4 focus:ring-purple-500/50 cursor-pointer"
+            onClick={handleGenerateMnemonic}
+          >
+            Generate Mnemonic
+          </button>
+        )}
+
 
         {/* Mnemonic display area - only shows after generation */}
         {mnemonic && (
