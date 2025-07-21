@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Multi-Chain Crypto Wallet
+A non-custodial, browser-based crypto wallet that allows you to generate a unique seed phrase to manage Ethereum and Solana accounts. Create new wallets, derive accounts, and view your balances in one place.
 
-## Getting Started
 
-First, run the development server:
+## ✨ Features
+- Secure Seed Phrase Generation: Create a new 12-word BIP39 mnemonic seed phrase to serve as the master key for all your wallets.
+- Multi-Chain Support:
+  - Ethereum: Derive multiple Ethereum wallet addresses from your seed phrase.
+  - Solana: Derive multiple Solana wallet addresses from your seed phrase.
+- Balance Checker: View the native token balances (ETH and SOL) for your generated wallets in real-time.
+- Non-Custodial: You have full control. Seed phrases and private keys are generated and stored only in your browser's session and are never sent to a server.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Technologies Used
+- **Frontend**: Next.js  
+- **Ethereum**: Ethers.js  
+- **Solana**: @solana/web3.js  
+- **Key Derivation**: bip39, hdkey  
+- **Styling**: Tailwind CSS
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ⭕ Disclaimer 
+This wallet was built just for learning and experimenting with crypto tech. It’s not meant for storing real funds, and it hasn’t been security-audited — so please don’t use it for anything serious or valuable.
