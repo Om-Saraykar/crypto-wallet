@@ -1,21 +1,9 @@
 "use client";
 
 import { generateMnemonic } from "bip39";
-
-// A simple SVG icon for the copy button
-const CopyIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-    <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-  </svg>
-);
-
-// A simple SVG icon for the checkmark when copied
-const CheckIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-green-400">
-    <path d="M20 6 9 17l-5-5" />
-  </svg>
-);
+import { CheckIcon, CopyIcon, SparklesIcon } from "@/components/icons";
+import { useState } from "react";
+import clsx from "clsx";
 
 interface WalletGeneratorProps {
   mnemonic: string;
@@ -24,94 +12,86 @@ interface WalletGeneratorProps {
   setIsCopied: (isCopied: boolean) => void;
 }
 
-export default function SeedGenerator({ mnemonic, setMnemonic, isCopied, setIsCopied }: WalletGeneratorProps) {
+export default function SeedGenerator({
+  mnemonic,
+  setMnemonic,
+  isCopied,
+  setIsCopied,
+}: WalletGeneratorProps) {
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  // Function to generate a new mnemonic
   const handleGenerateMnemonic = () => {
-    setMnemonic(generateMnemonic());
-    setIsCopied(false); // Reset copied state when new mnemonic is generated
+    setIsGenerating(true);
+    setTimeout(() => {
+      setMnemonic(generateMnemonic());
+      setIsCopied(false);
+      setIsGenerating(false);
+    }, 500); // short delay to give animation time
   };
 
-  // Function to copy the mnemonic to the clipboard
   const handleCopy = () => {
     if (!mnemonic) return;
-
-    // Use the older execCommand for broader compatibility, especially in iFrames
-    const textArea = document.createElement("textarea");
-    textArea.value = mnemonic;
-    textArea.style.position = "fixed"; // Avoid scrolling to bottom
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-      document.execCommand('copy');
+    navigator.clipboard.writeText(mnemonic).then(() => {
       setIsCopied(true);
-      // Reset the "Copied!" message after 2 seconds
-      setTimeout(() => {
-        setIsCopied(false);
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to copy: ', err);
-    }
-
-    document.body.removeChild(textArea);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
   };
 
   return (
+    <div className="w-full rounded-2xl border border-white/10 bg-gray-900/40 p-6 shadow-2xl backdrop-blur-lg md:p-8 transition-all">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-white md:text-4xl">Seed Phrase Generator</h1>
+        <p className="mt-2 text-gray-400">Your key to a non-custodial wallet.</p>
+      </div>
 
-    <>
-      {/* The main card component */}
-      <div className="w-full max-w-2xl h-full bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 text-white flex flex-col gap-8">
-
-        {/* Header section */}
-        <div className="text-center mt-2">
-          <h1 className="text-3xl md:text-4xl font-bold">Wallet Generator</h1>
-          <p className="text-gray-400 mt-2">Create your secure, non-custodial wallet.</p>
-        </div>
-
-        {/* Generate Button */}
-        {!mnemonic && (
+      {!mnemonic && (
+        <div className="mt-8 flex justify-center">
           <button
             type="button"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform focus:outline-none focus:ring-4 focus:ring-purple-500/50 cursor-pointer"
+            disabled={isGenerating}
+            className={clsx(
+              "group flex items-center gap-2 rounded-lg px-6 py-3 font-bold text-white transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-500/50 cursor-pointer",
+              isGenerating ? "bg-purple-800 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"
+            )}
             onClick={handleGenerateMnemonic}
           >
-            Generate Mnemonic
+            <SparklesIcon className={isGenerating ? "animate-spin" : ""} />
+            {isGenerating ? "Generating..." : "Generate Secure Phrase"}
           </button>
-        )}
+        </div>
+      )}
 
-
-        {/* Mnemonic display area - only shows after generation */}
-        {mnemonic && (
-          <div className="space-y-6">
-            {/* Security Warning */}
-            <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-300 px-4 py-3 rounded-lg" role="alert">
-              <p className="font-bold">🚨 Important: Secure Your Phrase!</p>
-              <p className="text-sm">Write this phrase down and store it in a safe, offline location. Never share it with anyone. This is the master key to your wallet.</p>
-            </div>
-
-            {/* The Mnemonic grid with a copy button */}
-            <div className="bg-gray-900 rounded-lg p-4 md:p-6 relative">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {mnemonic.split(' ').map((word, index) => (
-                  <div key={index} className="bg-gray-800 border border-gray-700 rounded-lg p-2 flex items-center">
-                    <span className="text-sm font-semibold text-gray-500 w-6 text-right mr-2">{index + 1}.</span>
-                    <span className="font-mono text-base text-green-400">{word}</span>
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={handleCopy}
-                className="absolute top-4 right-4 p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                aria-label="Copy mnemonic"
-              >
-                {isCopied ? <CheckIcon /> : <CopyIcon />}
-              </button>
-            </div>
+      {mnemonic && (
+        <div className="animate-fade-in mt-8 space-y-6 transition-all duration-500">
+          {/* Security Warning */}
+          <div className="rounded-lg border border-yellow-700 bg-yellow-900/30 p-4" role="alert">
+            <p className="font-bold text-yellow-300">🚨 Secure Your Phrase!</p>
+            <p className="mt-1 text-sm text-yellow-400">
+              Store this phrase in a safe, offline location. Never share it. This is the master key to your funds.
+            </p>
           </div>
-        )}
-      </div>
-    </>
+
+          {/* Mnemonic Grid */}
+          <div className="relative rounded-lg bg-gray-900/70 p-4 md:p-6 shadow-inner">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              {mnemonic.split(" ").map((word, index) => (
+                <div key={index} className="flex items-center rounded-md bg-gray-800 p-2">
+                  <span className="w-6 text-right text-sm font-medium text-gray-500">{index + 1}.</span>
+                  <span className="ml-2 font-mono text-base text-teal-300">{word}</span>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-700 text-gray-300 transition-colors hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              aria-label="Copy mnemonic"
+            >
+              {isCopied ? <CheckIcon /> : <CopyIcon />}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

@@ -9,21 +9,25 @@ export default function Home() {
   const [isCopied, setIsCopied] = useState(false);
 
   return (
-    <div className="bg-gray-900 min-h-screen flex flex-col gap-4 items-center justify-center p-6 font-sans">
-      <SeedGenerator
-        mnemonic={mnemonic}
-        setMnemonic={setMnemonic}
-        isCopied={isCopied}
-        setIsCopied={setIsCopied}
-      />
+    <main className="main-bg flex min-h-screen w-full flex-col items-center justify-center p-4 font-sans">
+      <div className="w-full max-w-2xl space-y-8">
+        <SeedGenerator
+          mnemonic={mnemonic}
+          setMnemonic={setMnemonic}
+          isCopied={isCopied}
+          setIsCopied={setIsCopied}
+        />
 
-      {mnemonic ? (
-        <SolanaWallet mnemonic={mnemonic} />
-      ) : (
-        <div className="text-center text-white mt-4 text-sm opacity-70">
-          Please generate a seed phrase to view Solana wallets.
-        </div>
-      )}
-    </div>
+        {mnemonic ? (
+          <div className="animate-fade-in">
+            <SolanaWallet mnemonic={mnemonic} />
+          </div>
+        ) : (
+          <div className="text-center text-sm text-gray-500">
+            Generate a seed phrase to create and manage wallets.
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
