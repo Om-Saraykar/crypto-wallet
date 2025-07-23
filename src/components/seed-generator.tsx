@@ -31,11 +31,42 @@ export default function SeedGenerator({
 
   const handleCopy = () => {
     if (!mnemonic) return;
-    navigator.clipboard.writeText(mnemonic).then(() => {
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    });
+
+    // Modern API
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(mnemonic).then(() => {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      }).catch(() => fallbackCopy());
+    } else {
+      fallbackCopy();
+    }
+
+    function fallbackCopy() {
+      const textArea = document.createElement("textarea");
+      textArea.value = mnemonic;
+      textArea.style.position = "fixed"; // avoid scrolling to bottom
+      textArea.style.opacity = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const successful = document.execCommand("copy");
+        if (successful) {
+          setIsCopied(true);
+          setTimeout(() => setIsCopied(false), 2000);
+        } else {
+          alert("Copy failed. Please copy manually.");
+        }
+      } catch (err) {
+        alert("Copy not supported. Please copy manually.");
+      }
+
+      document.body.removeChild(textArea);
+    }
   };
+
 
   return (
     <div className="w-full rounded-2xl border border-white/10 bg-gray-900/40 p-6 shadow-2xl backdrop-blur-lg md:p-8 transition-all">
@@ -45,19 +76,27 @@ export default function SeedGenerator({
       </div>
 
       {!mnemonic && (
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex items-center justify-center">
           <button
             type="button"
             disabled={isGenerating}
             className={clsx(
-              "group flex items-center gap-2 rounded-lg px-6 py-3 font-bold text-white transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-500/50 cursor-pointer",
-              isGenerating ? "bg-purple-800 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"
+              "relative group flex items-center justify-center gap-2 overflow-hidden rounded-lg px-6 py-3 font-bold text-gray-900 shadow-lg ring-1 ring-inset ring-white/10 transition-all duration-300 focus:outline-none",
+              isGenerating
+                ? "bg-gradient-to-br from-[#14F195] to-[#00F0FF] cursor-not-allowed"
+                : "bg-gradient-to-br from-[#14F195] to-[#00F0FF] hover:scale-105 hover:brightness-110"
             )}
             onClick={handleGenerateMnemonic}
           >
-            <SparklesIcon className={isGenerating ? "animate-spin" : ""} />
-            {isGenerating ? "Generating..." : "Generate Secure Phrase"}
+            <span className="z-10 flex items-center gap-2">
+              <SparklesIcon className={clsx("h-5 w-5 mb-[2px]", isGenerating && "animate-spin")} />
+              {isGenerating ? "Generating..." : "Generate Secure Phrase"}
+            </span>
+            {!isGenerating && (
+              <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-10" />
+            )}
           </button>
+
         </div>
       )}
 

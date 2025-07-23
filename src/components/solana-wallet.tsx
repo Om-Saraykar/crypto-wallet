@@ -6,6 +6,7 @@ import { derivePath } from "ed25519-hd-key";
 import { Keypair } from "@solana/web3.js";
 import bs58 from "bs58";
 import { EyeOpenIcon, EyeClosedIcon, TrashIcon, PlusIcon } from "@/components/icons";
+import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 
 interface Wallet {
   publicKey: string;
@@ -17,6 +18,7 @@ export function SolanaWallet({ mnemonic }: { mnemonic: string }) {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [nextIndex, setNextIndex] = useState(0);
   const [visibleKey, setVisibleKey] = useState<string | null>(null);
+  const [walletToDelete, setWalletToDelete] = useState<Wallet | null>(null);
 
   const handleAddWallet = async () => {
     const seed = await mnemonicToSeed(mnemonic);
@@ -67,7 +69,6 @@ export function SolanaWallet({ mnemonic }: { mnemonic: string }) {
           </span>
           <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-10" />
         </button>
-
       </div>
 
       {/* Wallets or Empty Message */}
@@ -76,27 +77,32 @@ export function SolanaWallet({ mnemonic }: { mnemonic: string }) {
           <p className="text-center text-gray-500">No wallets derived yet. Click "Add Wallet" to begin.</p>
         ) : (
           wallets.map(wallet => (
-            <div key={wallet.publicKey} className="animate-fade-in rounded-lg border border-gray-700 bg-gray-800/50 p-4 transition-all hover:border-gray-600">
+            <div
+              key={wallet.publicKey}
+              className="animate-fade-in rounded-lg border border-gray-700 bg-gray-800/50 p-4 transition-all hover:border-gray-600"
+            >
               <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-gray-400">
                     {`Wallet #${wallet.pathIndex + 1}`} (<code>{`m/44'/501'/${wallet.pathIndex}'/0'`}</code>)
                   </p>
-                  <p className="truncate font-mono text-lg text-solana-aqua">{wallet.publicKey}</p>
+                  <p className="break-all font-mono text-lg text-solana-aqua sm:truncate">
+                    {wallet.publicKey}
+                  </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3 self-end md:self-center">
                   <button
                     type="button"
                     onClick={() => togglePrivateKeyVisibility(wallet.publicKey)}
-                    className="text-gray-400 transition hover:text-white"
+                    className="text-gray-400 transition hover:text-white cursor-pointer"
                   >
                     {visibleKey === wallet.publicKey ? <EyeClosedIcon /> : <EyeOpenIcon />}
                   </button>
                   <button
                     type="button"
                     title="Delete Wallet"
-                    onClick={() => handleDeleteWallet(wallet.publicKey)}
-                    className="text-gray-500 transition hover:text-red-500"
+                    onClick={() => setWalletToDelete(wallet)}
+                    className="text-gray-500 transition hover:text-red-500 cursor-pointer"
                   >
                     <TrashIcon />
                   </button>
@@ -113,6 +119,19 @@ export function SolanaWallet({ mnemonic }: { mnemonic: string }) {
           ))
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {walletToDelete && (
+        <ConfirmDeleteDialog
+          isOpen={!!walletToDelete}
+          walletLabel={`Wallet #${walletToDelete.pathIndex + 1}`}
+          onCancel={() => setWalletToDelete(null)}
+          onConfirm={() => {
+            handleDeleteWallet(walletToDelete.publicKey);
+            setWalletToDelete(null);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -54,9 +54,12 @@ export const SparklesIcon = (props: IconProps) => (
     className="h-5 w-5"
     {...props}
   >
-    <path d="M9.9_3.9_12_2_14.1_3.9_16_6_14.1_8.1_12_10_9.9_8.1_8_6zM20_14l-2-2-2_2_2_2zM4_14l2-2_2_2-2_2zM12_22l2.1-2.1L16_18l-2.1-2.1L12_14l-2.1_2.1L8_18l2.1_2.1z" />
+    <g transform="translate(1.5, 3)">
+      <path d="M10 3L8 8l-5 2 5 2 2 5 2-5 5-2-5-2-2-5zM21 14l-2 2-2-2 2-2 2 2z" />
+    </g>
   </svg>
 );
+
 
 export const EyeOpenIcon = (props: IconProps) => (
   <svg
