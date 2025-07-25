@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { mnemonicToSeed } from "bip39";
-import { Wallet, HDNodeWallet } from "ethers";
+import { HDNodeWallet } from "ethers";
 import { ethers } from "ethers";
 import {
   EyeOpenIcon,
@@ -11,7 +11,7 @@ import {
   PlusIcon,
 } from "@/components/icons";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
-import { Loader2 } from "lucide-react"; // ✅ Spinner icon (install via `npm i lucide-react` if needed)
+import { Loader2 } from "lucide-react";
 
 interface EthDerivedWallet {
   address: string;
