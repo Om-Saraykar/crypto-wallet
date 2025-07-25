@@ -3,6 +3,7 @@
 import { generateMnemonic } from "bip39";
 import { CheckIcon, CopyIcon, SparklesIcon } from "@/components/icons";
 import { useState } from "react";
+import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/24/solid"; // add this
 import clsx from "clsx";
 
 interface WalletGeneratorProps {
@@ -19,6 +20,7 @@ export default function SeedGenerator({
   setIsCopied,
 }: WalletGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleGenerateMnemonic = () => {
     setIsGenerating(true);
@@ -26,13 +28,12 @@ export default function SeedGenerator({
       setMnemonic(generateMnemonic());
       setIsCopied(false);
       setIsGenerating(false);
-    }, 500); // short delay to give animation time
+      setIsCollapsed(false); // show by default after generating
+    }, 500);
   };
 
   const handleCopy = () => {
     if (!mnemonic) return;
-
-    // Modern API
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(mnemonic).then(() => {
         setIsCopied(true);
@@ -45,12 +46,11 @@ export default function SeedGenerator({
     function fallbackCopy() {
       const textArea = document.createElement("textarea");
       textArea.value = mnemonic;
-      textArea.style.position = "fixed"; // avoid scrolling to bottom
+      textArea.style.position = "fixed";
       textArea.style.opacity = "0";
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
-
       try {
         const successful = document.execCommand("copy");
         if (successful) {
@@ -59,20 +59,24 @@ export default function SeedGenerator({
         } else {
           alert("Copy failed. Please copy manually.");
         }
-      } catch (err) {
+      } catch {
         alert("Copy not supported. Please copy manually.");
       }
-
       document.body.removeChild(textArea);
     }
   };
 
-
   return (
     <div className="w-full rounded-2xl border border-white/10 bg-gray-900/40 p-6 shadow-2xl backdrop-blur-lg md:p-8 transition-all">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-white md:text-4xl">Seed Phrase Generator</h1>
-        <p className="mt-2 text-gray-400">Your key to a non-custodial wallet.</p>
+      <div className="text-center flex flex-col items-center">
+        <h1 className="text-3xl font-bold text-white md:text-4xl">
+          {mnemonic ? "Your Recovery Phrase" : "Seed Phrase Generator"}
+        </h1>
+        <p className="mt-2 text-gray-400">
+          {mnemonic
+            ? "Store your phrase safely. This is your wallet's key."
+            : "Your key to a non-custodial wallet."}
+        </p>
       </div>
 
       {!mnemonic && (
@@ -88,7 +92,7 @@ export default function SeedGenerator({
             )}
             onClick={handleGenerateMnemonic}
           >
-            <span className="z-10 flex items-center gap-2">
+            <span className="z-10 flex items-center gap-2 cursor-pointer">
               <SparklesIcon className={clsx("h-5 w-5 mb-[2px]", isGenerating && "animate-spin")} />
               {isGenerating ? "Generating..." : "Generate Secure Phrase"}
             </span>
@@ -96,11 +100,10 @@ export default function SeedGenerator({
               <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-10" />
             )}
           </button>
-
         </div>
       )}
 
-      {mnemonic && (
+      {mnemonic && !isCollapsed && (
         <div className="animate-fade-in mt-8 space-y-6 transition-all duration-500">
           {/* Security Warning */}
           <div className="rounded-lg border border-yellow-700 bg-yellow-900/30 p-4" role="alert">
@@ -131,6 +134,22 @@ export default function SeedGenerator({
           </div>
         </div>
       )}
+      <div className="flex justify-center mt-4">
+        {mnemonic && (
+          <button
+            type="button"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="mt-4 text-gray-400 hover:text-white transition cursor-pointer"
+            aria-label="Toggle mnemonic visibility"
+          >
+            {isCollapsed ? (
+              <ChevronDownIcon className="h-6 w-6" />
+            ) : (
+              <ChevronUpIcon className="h-6 w-6" />
+            )}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

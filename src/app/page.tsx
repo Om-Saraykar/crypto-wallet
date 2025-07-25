@@ -11,7 +11,7 @@ export default function Home() {
 
   return (
     <main className="main-bg flex min-h-screen w-full flex-col items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-2xl flex flex-col gap-8">
+      <div className="w-full max-w-[680px] flex flex-col gap-8">
         <SeedGenerator
           mnemonic={mnemonic}
           setMnemonic={setMnemonic}
